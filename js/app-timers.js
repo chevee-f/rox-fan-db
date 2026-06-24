@@ -1340,7 +1340,11 @@ async function handleStartSharing(colId) {
         const allow = await ShareSocket.checkAllowlist(col.trackerId);
         allowlistCache[col.trackerId] = allow;
         if (!allow.allowed) {
-            spawnToastNotification('Not Activated', 'Send this tracker ID to admin for allowlisting.', 'alarm');
+            spawnToastNotification(
+                'Not Activated',
+                `${col.trackerId} is not on the server allowlist yet.`,
+                'alarm'
+            );
             renderTimersUI();
             return;
         }

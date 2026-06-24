@@ -13,12 +13,46 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname)));
 
+app.use(express.json());
+
+function requireAdmin(req, res, next) {
+    const secret = process.env.ADMIN_SECRET;
+    if (!secret) {
+        return res.status(503).json({ ok: false, error: 'ADMIN_SECRET not configured on server' });
+    }
+    const auth = req.get('Authorization') || '';
+    if (auth !== `Bearer ${secret}`) {
+        return res.status(401).json({ ok: false, error: 'Unauthorized' });
+    }
+    next();
+}
+
+app.get('/api/admin/groups', requireAdmin, (_req, res) => {
+    const rows = getDb()
+        .prepare(`
+            SELECT tracker_id, approved_at, sharing_active, title, host_nickname, notes
+            FROM approved_groups
+            ORDER BY approved_at DESC
+        `)
+        .all();
+    res.json({ ok: true, groups: rows });
+});
+
+app.post('/api/admin/approve', requireAdmin, (req, res) => {
+    const trackerId = String(req.body?.trackerId || '').trim().toUpperCase();
+    if (!/^TRK-[A-Z0-9]+$/i.test(trackerId)) {
+        return res.status(400).json({ ok: false, error: 'Invalid tracker ID' });
+    }
+    groups.approveGroup(trackerId, req.body?.notes || 'admin api');
+    res.json({ ok: true, trackerId });
+});
+
 app.get('/health', (_req, res) => {
     res.json({ ok: true });
 });
 
 const PORT = process.env.PORT || 3000;
-const AUTO_APPROVE_GROUPS = process.env.AUTO_APPROVE_GROUPS === 'false';
+const AUTO_APPROVE_GROUPS = process.env.AUTO_APPROVE_GROUPS === 'true';
 
 /** @type {Map<string, Map<string, string>>} trackerId -> nickname -> socketId */
 const pendingJoins = new Map();

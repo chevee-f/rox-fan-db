@@ -6,10 +6,14 @@ After a host creates a group in the app, they copy the **tracker ID** (e.g. `TRK
 npm run list-groups
 ```
 
-On Railway:
+### Railway (production database)
 
-```bash
-railway run npm run list-groups
+`railway shell` / `railway run` = your PC only. Use the admin API or `railway ssh`:
+
+```powershell
+$env:ROX_ADMIN_URL="https://YOUR-APP.up.railway.app"
+$env:ADMIN_SECRET="your-secret"
+npm run list-groups
 ```
 
 ## Activate an ID
@@ -21,7 +25,7 @@ INSERT INTO approved_groups (tracker_id, notes)
 VALUES ('TRK-A7F3K9Q', 'Guild MVP board - PlayerX');
 ```
 
-The host can then press **Start sharing** in the app (once the client UI is wired).
+On Railway, run SQL inside the container: `railway shell`, then use `node -e` or the approve script above.
 
 ## Check status
 

@@ -67,15 +67,44 @@ Share with friends:
 
 ## Manual allowlist (production)
 
-If `AUTO_APPROVE_GROUPS` is not set, approve IDs on the server:
+If `AUTO_APPROVE_GROUPS` is not set, approve IDs **on the live server** (not your PC).
+
+### Railway — approve the **live** database
+
+`railway shell` and `railway run` both run on **your PC** (you'll see `D:\Projects\RoX\data\trackers.db`). They do **not** update production.
+
+**Easiest for testing:** set `AUTO_APPROVE_GROUPS=true` in Railway Variables and redeploy.
+
+**Manual approve (recommended):** set an admin secret and call the API from your PC:
+
+1. Railway → Variables:
+   - `ADMIN_SECRET` = a long random string you keep private
+   - `AUTO_APPROVE_GROUPS` = `false` (or leave unset)
+2. Redeploy
+3. From your PC:
+
+```powershell
+$env:ROX_ADMIN_URL="https://YOUR-APP.up.railway.app"
+$env:ADMIN_SECRET="your-secret-here"
+npm run approve -- TRK-6JSB78 "Guild Timers"
+npm run list-groups
+```
+
+**SSH into the container** (alternative):
+
+```powershell
+railway ssh
+npm run approve -- TRK-6JSB78 "Guild board"
+```
+
+First `railway ssh` may prompt you to register an SSH key.
+
+### Local dev
 
 ```bash
 npm run approve -- TRK-A7F3K9Q "Guild board"
+npm run list-groups
 ```
-
-On Railway: **service → Settings → Run command** (or SSH if enabled).
-
-See [ADMIN.md](./ADMIN.md) for SQL details.
 
 ---
 
