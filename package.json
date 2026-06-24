@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "approve": "node scripts/approve-group.js"
+    "approve": "node scripts/approve-group.js",
+    "list-groups": "node scripts/list-groups.js"
   },
   "dependencies": {
     "express": "^4.21.2",

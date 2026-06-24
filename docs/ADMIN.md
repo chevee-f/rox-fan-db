@@ -2,6 +2,16 @@
 
 After a host creates a group in the app, they copy the **tracker ID** (e.g. `TRK-A7F3K9`) and send it to you.
 
+```bash
+npm run list-groups
+```
+
+On Railway:
+
+```bash
+railway run npm run list-groups
+```
+
 ## Activate an ID
 
 Open the SQLite database at `data/trackers.db` and run:
