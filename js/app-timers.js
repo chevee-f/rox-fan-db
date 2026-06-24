@@ -762,6 +762,198 @@ function purgeSharedSessionState() {
 }
 
 function saveTrackersState() { localStorage.setItem("ro_active_trackers", JSON.stringify(localTrackers)); }
+
+const TIMERS_EXPORT_FORMAT = 'rox-timers';
+const TIMERS_EXPORT_VERSION = 1;
+
+function sanitizeColumnForExport(col) {
+    return {
+        id: col.id,
+        title: col.title || 'UNNAMED GROUP',
+        trackerId: col.trackerId || generateTrackerId()
+    };
+}
+
+function sanitizeColumnForImport(col) {
+    return {
+        id: col.id,
+        title: col.title || 'UNNAMED GROUP',
+        trackerId: col.trackerId || generateTrackerId(),
+        shareMode: 'local',
+        sharingActive: false
+    };
+}
+
+function timerToExportRow(timer) {
+    const remainingMs = Math.max(0, (timer.endTime || 0) - Date.now());
+    return {
+        id: timer.id,
+        name: timer.name,
+        type: timer.type || 'NONE',
+        columnIds: Array.isArray(timer.columnIds) ? [...timer.columnIds] : [],
+        remainingMs,
+        totalDuration: timer.totalDuration || remainingMs || 0
+    };
+}
+
+function timerFromImportRow(row, id, columnIds) {
+    const remainingMs = Math.max(0, Number(row.remainingMs) || 0);
+    const totalDuration = Number(row.totalDuration) || remainingMs || 0;
+    return {
+        id,
+        name: String(row.name || 'Unknown').trim() || 'Unknown',
+        type: row.type || 'NONE',
+        columnIds,
+        endTime: Date.now() + remainingMs,
+        totalDuration,
+        warningTriggered: false,
+        alarmTriggered: false
+    };
+}
+
+function getOwnedColumns() {
+    return dashboardColumns.filter((col) => col.shareMode !== 'guest');
+}
+
+function getExportableTimers(ownedColumns) {
+    const ownedColIds = new Set(ownedColumns.map((col) => col.id));
+    const ownedTrackerIds = new Set(ownedColumns.map((col) => col.trackerId).filter(Boolean));
+    return localTrackers.filter((timer) => {
+        if (timer.sharedTrackerId && ownedTrackerIds.has(timer.sharedTrackerId)) return true;
+        return timer.columnIds?.some((id) => ownedColIds.has(id));
+    });
+}
+
+function buildTimersExportPayload() {
+    const ownedColumns = getOwnedColumns();
+    const columns = ownedColumns.map(sanitizeColumnForExport);
+    const timers = getExportableTimers(ownedColumns).map(timerToExportRow);
+    return {
+        format: TIMERS_EXPORT_FORMAT,
+        version: TIMERS_EXPORT_VERSION,
+        exportedAt: new Date().toISOString(),
+        columns,
+        timers
+    };
+}
+
+function parseTimersImportFile(raw) {
+    const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!data || data.format !== TIMERS_EXPORT_FORMAT) {
+        throw new Error('Not a valid RoX timers backup file.');
+    }
+    if (data.version !== TIMERS_EXPORT_VERSION) {
+        throw new Error(`Unsupported backup version (${data.version}).`);
+    }
+    if (!Array.isArray(data.columns) || !Array.isArray(data.timers)) {
+        throw new Error('Backup file is missing columns or timers.');
+    }
+    return data;
+}
+
+function applyTimersImport(data, mode = 'replace') {
+    const incomingColumns = data.columns.map(sanitizeColumnForImport);
+    const incomingTimers = data.timers;
+
+    if (mode === 'replace') {
+        dashboardColumns = dashboardColumns.filter((col) => col.shareMode === 'guest');
+        const guestTrackerIds = new Set(
+            dashboardColumns.filter((col) => col.trackerId).map((col) => col.trackerId)
+        );
+        localTrackers = localTrackers.filter((timer) => {
+            if (timer.sharedTrackerId && guestTrackerIds.has(timer.sharedTrackerId)) return true;
+            return timer.columnIds?.some((id) => dashboardColumns.some((col) => col.id === id));
+        });
+        dashboardColumns.push(...incomingColumns);
+        const ownedColIds = new Set(incomingColumns.map((col) => col.id));
+        const importedTimers = incomingTimers.map((row) => {
+            const columnIds = (row.columnIds || []).filter((id) => ownedColIds.has(id));
+            return timerFromImportRow(row, row.id, columnIds);
+        });
+        localTrackers.push(...importedTimers);
+    } else {
+        const colIdMap = {};
+        incomingColumns.forEach((col) => {
+            let newId = col.id;
+            if (dashboardColumns.some((c) => c.id === newId)) {
+                newId = `col_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+            }
+            colIdMap[col.id] = newId;
+            dashboardColumns.push({ ...col, id: newId });
+        });
+
+        incomingTimers.forEach((row) => {
+            let newId = row.id;
+            if (localTrackers.some((t) => t.id === newId)) {
+                newId = `tr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+            }
+            const columnIds = (row.columnIds || [])
+                .map((id) => colIdMap[id] || id)
+                .filter((id) => dashboardColumns.some((col) => col.id === id));
+            if (!columnIds.length) return;
+            localTrackers.push(timerFromImportRow(row, newId, columnIds));
+        });
+    }
+
+    migrateDashboardColumns();
+    saveDashboardColumns();
+    saveTrackersState();
+    renderTimersUI();
+}
+
+function exportTimersBackup() {
+    const payload = buildTimersExportPayload();
+    const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rox-timers-${stamp}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    spawnToastNotification(
+        'Export Complete',
+        `${payload.columns.length} groups · ${payload.timers.length} timers`,
+        'warn'
+    );
+}
+
+function triggerTimersImport(mode) {
+    const input = document.getElementById('timers-import-input');
+    if (!input) return;
+    input.dataset.importMode = mode;
+    input.value = '';
+    input.click();
+}
+
+function handleTimersImportFile(event) {
+    const file = event.target.files?.[0];
+    const mode = event.target.dataset.importMode || 'replace';
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        try {
+            const data = parseTimersImportFile(reader.result);
+            const label = mode === 'replace' ? 'Replace your boards with this backup? Guest groups stay.' : 'Add imported groups and timers to your board?';
+            if (!confirm(label)) return;
+            applyTimersImport(data, mode);
+            closeSettingsModal();
+            spawnToastNotification(
+                'Import Complete',
+                `${data.columns.length} groups · ${data.timers.length} timers`,
+                'warn'
+            );
+        } catch (err) {
+            spawnToastNotification('Import Failed', err.message || 'Could not read backup file.', 'alarm');
+        }
+    };
+    reader.onerror = () => {
+        spawnToastNotification('Import Failed', 'Could not read the selected file.', 'alarm');
+    };
+    reader.readAsText(file);
+}
+
 function saveSettingsState() {
     const volInput = document.getElementById("setting-master-volume").value;
     const soundSel = document.getElementById("setting-sound-profile").value;

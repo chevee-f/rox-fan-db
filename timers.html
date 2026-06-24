@@ -753,6 +753,17 @@
             </div>
 
             <div style="border-top:1px solid var(--border-color); padding-top:12px; margin-top:4px;">
+                <label class="ui-text-sm" style="display:block; margin-bottom:6px;">// DATA_BACKUP</label>
+                <p class="ui-text-xs" style="color:var(--text-muted); margin:0 0 8px;">Export groups and timers (countdown time preserved). Guest boards are not included.</p>
+                <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    <button type="button" class="secondary-btn" onclick="exportTimersBackup()">Export Backup</button>
+                    <button type="button" class="secondary-btn" onclick="triggerTimersImport('merge')">Import Merge</button>
+                    <button type="button" class="secondary-btn" onclick="triggerTimersImport('replace')">Import Replace</button>
+                </div>
+                <input type="file" id="timers-import-input" accept=".json,application/json" hidden onchange="handleTimersImportFile(event)">
+            </div>
+
+            <div style="border-top:1px solid var(--border-color); padding-top:12px; margin-top:12px;">
                 <label class="ui-text-sm" style="display:block; margin-bottom:6px;">System Purge Protocols</label>
                 <button class="danger-btn" onclick="purgeAllApplicationData()">⚠️ Reset Factory Baselines (Wipe All Data)</button>
             </div>
