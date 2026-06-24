@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster EXP Tier List — Introboys Fan Database</title>
+    <meta name="description" content="Filter and rank Ragnarok Online monsters by EXP efficiency for your level.">
+    <script src="./js/theme.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+    <header id="global-header"></header>
+
+    <div class="app-layout">
+        <nav id="global-nav"></nav>
+
+        <main>
+            <div class="ad-slot ad-top-banner">AD_TOP_BANNER</div>
+
+            <div class="control-panel">
+                <div class="control-group">
+                    <label for="char-level">Level</label>
+                    <input type="number" id="char-level" value="57" min="1" max="150" oninput="updateTables()">
+                </div>
+                <div class="control-group">
+                    <label for="size-type">Size</label>
+                    <select id="size-type" onchange="updateTables()">
+                        <option value="All">ALL_SIZES</option>
+                        <option value="Small">SMALL</option>
+                        <option value="Medium">MEDIUM</option>
+                        <option value="Large">LARGE</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="element-type">Element</label>
+                    <select id="element-type" onchange="updateTables()">
+                        <option value="All">ALL_ELEM</option>
+                        <option value="Neutral">Neutral</option>
+                        <option value="Water">Water</option>
+                        <option value="Earth">Earth</option>
+                        <option value="Fire">Fire</option>
+                        <option value="Wind">Wind</option>
+                        <option value="Poison">Poison</option>
+                        <option value="Holy">Holy</option>
+                        <option value="Shadow">Shadow</option>
+                        <option value="Ghost">Ghost</option>
+                        <option value="Undead">Undead</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="race-type">Race</label>
+                    <select id="race-type" onchange="updateTables()">
+                        <option value="All">ALL_RACES</option>
+                        <option value="Formless">Formless</option>
+                        <option value="Undead">Undead</option>
+                        <option value="Brute">Brute</option>
+                        <option value="Plant">Plant</option>
+                        <option value="Insect">Insect</option>
+                        <option value="Fish">Fish</option>
+                        <option value="Demon">Demon</option>
+                        <option value="Angel">Angel</option>
+                        <option value="Dragon">Dragon</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="exp-mode">Mode</label>
+                    <select id="exp-mode" onchange="updateTables()">
+                        <option value="All">ALL_MODES</option>
+                        <option value="Base">BASE_EXP</option>
+                        <option value="Job">JOB_EXP</option>
+                    </select>
+                </div>
+                <span id="monster-count"></span>
+            </div>
+
+            <div class="system-note">
+                <span>[NOTE]</span> BASE/JOB = no Odin. O-BASE/O-JOB = with Odin per kill. JOB/OD = job EXP per Odin point (small 1 · medium 2 · large 3). Odin tables below rank by efficiency.
+            </div>
+
+            <div id="output-view"></div>
+        </main>
+
+        <aside class="aside-panel" id="global-aside"></aside>
+    </div>
+
+    <footer id="global-footer"></footer>
+
+    <script src="./monsters.js"></script>
+    <script src="./js/exp-utils.js"></script>
+    <script src="./js/app-calculator.js"></script>
+    <script src="./js/layout-loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookies &amp; Local Storage — Introboys Fan Database</title>
+    <meta name="description" content="Cookie and local storage policy for the Introboys Fan Database fan site.">
+    <script src="../js/theme.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="legal-page">
+
+    <header id="global-header"></header>
+
+    <div class="app-layout app-layout--legal">
+        <nav id="global-nav"></nav>
+
+        <main class="legal-main">
+            <article class="legal-doc">
+                <p class="legal-meta">Last updated: 20 June 2026</p>
+                <h1>Cookies &amp; Local Storage Policy</h1>
+
+                <p>
+                    This policy explains how the Introboys Fan Database Site (“<strong>Site</strong>”) uses cookies and similar
+                    browser storage technologies.
+                </p>
+
+                <h2>1. Do We Use Cookies?</h2>
+                <p>
+                    The core Site tools primarily use <strong>localStorage</strong> and <strong>sessionStorage</strong>
+                    rather than HTTP cookies. A hosting provider or future analytics integration may set cookies; if so,
+                    this section will be updated and, where required by law, a consent mechanism may be shown.
+                </p>
+
+                <h2>2. Local Storage We Use</h2>
+                <table class="legal-table">
+                    <thead>
+                        <tr><th>Key / area</th><th>Purpose</th><th>Duration</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>ro_app_settings</code></td>
+                            <td>Theme, sound profile, volume, notification preference</td>
+                            <td>Until cleared</td>
+                        </tr>
+                        <tr>
+                            <td><code>ro_dashboard_columns</code>, <code>ro_active_trackers</code></td>
+                            <td>Spawn tracker boards and timer state</td>
+                            <td>Until cleared</td>
+                        </tr>
+                        <tr>
+                            <td><code>ro_guest_sessions</code>, <code>guest_sessions</code></td>
+                            <td>Remember shared groups you joined as a guest</td>
+                            <td>Until cleared</td>
+                        </tr>
+                        <tr>
+                            <td><code>share_nickname</code> (sessionStorage)</td>
+                            <td>Your chosen nickname for shared groups this tab session</td>
+                            <td>Tab session</td>
+                        </tr>
+                        <tr>
+                            <td>Theme preference (via theme.js)</td>
+                            <td>Selected color theme</td>
+                            <td>Until cleared</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>3. Why We Store This Data</h2>
+                <p>
+                    Local storage lets the Site remember your layout and preferences without an account. Shared spawn sync
+                    may additionally store group membership on a server you connect to.
+                </p>
+
+                <h2>4. Your Controls</h2>
+                <ul>
+                    <li>Clear site data in your browser settings (Chrome: Settings → Privacy → Delete browsing data → Cached images and files / Site settings).</li>
+                    <li>Use the Site’s settings modal or “hard wipe” option on the timers page to reset local tracker data.</li>
+                    <li>Block storage in browser settings — note that tools may not function correctly.</li>
+                </ul>
+
+                <h2>5. Updates</h2>
+                <p>We may update this policy when storage practices change. Check the date above.</p>
+
+                <nav class="legal-doc-nav">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Use</a>
+                    <a href="disclaimer.html">Disclaimer</a>
+                    <a href="../index.html">Home</a>
+                </nav>
+            </article>
+        </main>
+    </div>
+
+    <footer id="global-footer"></footer>
+    <script src="../js/layout-loader.js"></script>
+</body>
+</html>

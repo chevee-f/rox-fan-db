@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OX Quiz — Introboys Fan Database</title>
+    <script src="./js/theme.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        /* Specific enhancement for wide, easy-to-tap touch targets on mobile devices */
+        .search-wrapper input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-main);
+            outline: none;
+        }
+        .search-wrapper input[type="text"]:focus {
+            border-color: var(--accent-blue);
+        }
+        .quiz-hit {
+            color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.15);
+            font-weight: bold;
+            padding: 0 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="global-header"></header>
+
+    <div class="app-layout">
+        <nav id="global-nav"></nav>
+
+        <main>
+            <div class="ad-slot ad-top-banner">AD_TOP_BANNER</div>
+
+            <div class="control-panel search-wrapper">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px;">
+                    <label for="quiz-search">// RUNTIME_FILTER_QUERY</label>
+                    <span id="quiz-count" style="font-size: 0.75rem; color: var(--text-muted);">[ POOL: 0_ENTRIES ]</span>
+                </div>
+                <input type="text" id="quiz-search" placeholder="Type keywords here (e.g., 'midgard', 'stamina', 'poring')..." autocomplete="off" autofocus>
+            </div>
+
+            <div class="system-note">
+                <span>[NOTICE]</span> Type parts of the phrase quickly during events to isolate answers rapidly.
+            </div>
+
+            <div id="quiz-output-view"></div>
+        </main>
+
+        <aside class="aside-panel" id="global-aside"></aside>
+    </div>
+
+    <footer id="global-footer"></footer>
+
+    <script src="./js/quiz-data.js"></script>
+    <script src="./js/app-quiz.js"></script>
+    <script src="./js/layout-loader.js"></script>
+    <script>
+        // Override function hook target within layout-loader mapping logic parameters
+        function initCalculator() {
+            initQuiz();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster EXP Tier List</title>
+    <style>
+        :root {
+            --bg-main: #0b0d10;
+            --bg-card: #11141a;
+            --bg-input: #171b24;
+            --border-color: #222834;
+            --text-main: #f0f3f8;
+            --text-muted: #6b7693;
+            --accent-blue: #38bdf8;
+            --accent-orange: #fb923c;
+            --accent-yellow: #facc15;
+
+            /* Element Colors */
+            --elem-neutral: #9ca3af;
+            --elem-water: #60a5fa;
+            --elem-earth: #a78bfa;
+            --elem-fire: #f87171;
+            --elem-wind: #2dd4bf;
+            --elem-poison: #c084fc;
+            --elem-holy: #fef08a;
+            --elem-shadow: #818cf8;
+            --elem-ghost: #cbd5e1;
+            --elem-undead: #f472b6;
+
+            /* Size Colors */
+            --size-small: #22d3ee;
+            --size-medium: #4ade80;
+            --size-large: #fbbf24;
+        }
+
+        body {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            letter-spacing: -0.03em;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 32px;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            font-weight: 900;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        h1::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 11px;
+            background: var(--accent-blue);
+        }
+
+        /* --- RESPONSIVE DESKTOP LAYOUT --- */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 200px 1fr 280px;
+            width: 100%;
+            flex: 1;
+            box-sizing: border-box;
+        }
+
+        /* --- NAVIGATION SIDEBAR --- */
+        nav {
+            background-color: #0d1015;
+            border-right: 1px solid var(--border-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-sizing: border-box;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 4px 6px;
+            display: block;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-links a.active {
+            background-color: var(--bg-input);
+            border-left-color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        .nav-links a:hover:not(.active) {
+            background-color: rgba(23, 27, 36, 0.5);
+        }
+
+        /* --- MAIN CONTENT CENTER --- */
+        main {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-sizing: border-box;
+            min-width: 0; /* Prevents layout blowout from un-wrapped tables */
+        }
+
+        /* --- UTILITY ASIDE SIDEBAR --- */
+        .aside-panel {
+            background-color: #0d1015;
+            border-left: 1px solid var(--border-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-sizing: border-box;
+        }
+
+        .meta-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+        }
+
+        .meta-box-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            margin: 0 0 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .meta-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            border-bottom: 1px dashed rgba(34, 40, 52, 0.5);
+            padding-bottom: 4px;
+        }
+
+        .meta-item:last-child {
+            border-bottom: none;
+        }
+
+        .meta-item span.val {
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        /* --- CONTROL FILTERS PANEL --- */
+        .control-panel {
+            background: var(--bg-card);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        label {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        input[type="number"], select {
+            padding: 4px 6px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-main);
+            outline: none;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent-blue);
+        }
+
+        input[type="number"] {
+            width: 42px;
+            text-align: center;
+        }
+
+        select {
+            width: 115px;
+            cursor: pointer;
+        }
+
+        #monster-count {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* System Notice Banner */
+        .system-note {
+            background-color: rgba(56, 189, 248, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            color: var(--accent-blue);
+            padding: 6px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin: 0 0 6px 0;
+        }
+
+        .view-title span {
+            font-size: 0.75rem;
+            color: #4b5563;
+        }
+
+        /* --- EXP CONTAINER GRIDS --- */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 12px;
+        }
+
+        .tables-grid.single-view {
+            grid-template-columns: 1fr;
+        }
+
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            overflow-x: auto; /* Handles micro-screen table overflow gracefully */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin: 0 0 8px 0;
+            font-weight: 800;
+        }
+        
+        .title-base { color: var(--accent-orange); }
+        .title-job { color: var(--accent-yellow); }
+        .title-balanced { color: var(--accent-blue); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap; /* Prevents critical data metrics from breaking lines layout-wise */
+        }
+
+        th, td {
+            padding: 4px 6px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            height: 26px;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .monster-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .monster-avatar {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-input);
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .monster-avatar-fallback {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        td strong {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        tr:hover td {
+            background-color: var(--bg-input);
+        }
+
+        .no-data {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 12px 0;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 1px 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+        }
+
+        .badge-small { border-color: var(--size-small); color: var(--size-small); }
+        .badge-medium { border-color: var(--size-medium); color: var(--size-medium); }
+        .badge-large { border-color: var(--size-large); color: var(--size-large); }
+
+        .badge-neutral { border-color: var(--elem-neutral); color: var(--elem-neutral); }
+        .badge-water { border-color: var(--elem-water); color: var(--elem-water); }
+        .badge-earth { border-color: var(--elem-earth); color: var(--elem-earth); }
+        .badge-fire { border-color: var(--elem-fire); color: var(--elem-fire); }
+        .badge-wind { border-color: var(--elem-wind); color: var(--elem-wind); }
+        .badge-poison { border-color: var(--elem-poison); color: var(--elem-poison); }
+        .badge-holy { border-color: var(--elem-holy); color: var(--elem-holy); }
+        .badge-shadow { border-color: var(--elem-shadow); color: var(--elem-shadow); }
+        .badge-ghost { border-color: var(--elem-ghost); color: var(--elem-ghost); }
+        .badge-undead { border-color: var(--elem-undead); color: var(--elem-undead); }
+
+        .eff-100 { color: #60a5fa; } 
+        .eff-80 { color: #f87171; }  
+        .eff-10 { color: #ef4444; font-weight: 900; background: rgba(239, 68, 68, 0.1); }
+
+        /* Ads layout handles */
+        .ad-slot {
+            background-color: #0b0d11;
+            border: 1px dashed #3a445e;
+            color: #3a445e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+        .ad-sidebar-left { width: 100%; height: 150px; margin-top: auto; }
+        .ad-sidebar-right { width: 100%; height: 200px; margin-top: auto; }
+        .ad-top-banner { width: 100%; height: 60px; }
+
+        footer {
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            padding: 8px 16px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ==========================================================================
+           MEDIA QUERIES FOR MOBILE & TABLETS (BREAKPOINTS)
+           ========================================================================== */
+        
+        /* Tablets & Smaller Desktops (Max 1024px) */
+        @media (max-width: 1024px) {
+            .app-layout {
+                grid-template-columns: 180px 1fr; /* Drop the right panel to stack down later */
+            }
+            .aside-panel {
+                grid-column: span 2;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                flex-direction: row; /* Horizontal summary boxes on tablet */
+            }
+            .aside-panel .meta-box {
+                flex: 1;
+            }
+            .ad-sidebar-right { display: none; } /* Hide heavy desktop ad block */
+        }
+
+        /* Mobile Handsets (Max 768px) */
+        @media (max-width: 768px) {
+            .app-layout {
+                grid-template-columns: 1fr; /* Switch to purely fluid single vertical column */
+            }
+            
+            nav {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 10px;
+            }
+            
+            .nav-links {
+                flex-direction: row; /* Turn navigation into horizontal fluid pill items */
+                flex-wrap: wrap;
+            }
+            
+            .nav-links a {
+                border-left: none;
+                border-bottom: 2px solid transparent;
+                padding: 6px 10px;
+            }
+            
+            .nav-links a.active {
+                border-bottom-color: var(--accent-blue);
+            }
+            
+            .ad-sidebar-left { display: none; }
+
+            .control-panel {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .control-group {
+                justify-content: space-between;
+            }
+
+            .control-group select, .control-group input {
+                width: 60%; /* Wide input dynamic targets for tap accessibility */
+                max-width: 200px;
+            }
+
+            #monster-count {
+                margin-left: 0;
+                text-align: center;
+                border-top: 1px solid var(--border-color);
+                padding-top: 6px;
+            }
+
+            .aside-panel {
+                grid-column: span 1;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DB // EXP_CALC</h1>
+        <div style="color: var(--accent-blue); font-size: 0.75rem; font-weight: bold;">v0.7.0</div>
+    </header>
+
+    <div class="app-layout">
+        
+        <!-- LEFT NAVIGATION (TOP BAR ON MOBILE) -->
+        <nav>
+            <div>
+                <div class="nav-section-title">Database</div>
+                <ul class="nav-links">
+                    <li><a href="#" class="active">EXP Tier List</a></li>
+                    <li><a href="#">Monster Map Distribution</a></li>
+                    <li><a href="#">Item Drop Tables</a></li>
+                </ul>
+            </div>
+            <div class="ad-slot ad-sidebar-left">AD_SIDEBAR_L</div>
+        </nav>
+
+        <!-- MAIN SPAWN WINDOW -->
+        <main>
+            <div class="ad-slot ad-top-banner">AD_TOP_BANNER</div>
+
+            <div class="control-panel">
+                <div class="control-group">
+                    <label for="char-level">Level</label>
+                    <input type="number" id="char-level" value="57" min="1" max="150" oninput="updateTables()">
+                </div>
+                <div class="control-group">
+                    <label for="size-type">Size</label>
+                    <select id="size-type" onchange="updateTables()">
+                        <option value="All">ALL_SIZES</option>
+                        <option value="Small">SMALL</option>
+                        <option value="Medium">MEDIUM</option>
+                        <option value="Large">LARGE</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="element-type">Element</label>
+                    <select id="element-type" onchange="updateTables()">
+                        <option value="All">ALL_ELEM</option>
+                        <option value="Neutral">Neutral</option>
+                        <option value="Water">Water</option>
+                        <option value="Earth">Earth</option>
+                        <option value="Fire">Fire</option>
+                        <option value="Wind">Wind</option>
+                        <option value="Poison">Poison</option>
+                        <option value="Holy">Holy</option>
+                        <option value="Shadow">Shadow</option>
+                        <option value="Ghost">Ghost</option>
+                        <option value="Undead">Undead</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="race-type">Race</label>
+                    <select id="race-type" onchange="updateTables()">
+                        <option value="All">ALL_RACES</option>
+                        <option value="Formless">Formless</option>
+                        <option value="Undead">Undead</option>
+                        <option value="Brute">Brute</option>
+                        <option value="Plant">Plant</option>
+                        <option value="Insect">Insect</option>
+                        <option value="Fish">Fish</option>
+                        <option value="Demon">Demon</option>
+                        <option value="Demi-Human">Demi-Human</option>
+                        <option value="Angel">Angel</option>
+                        <option value="Dragon">Dragon</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="exp-mode">Mode</label>
+                    <select id="exp-mode" onchange="updateTables()">
+                        <option value="All">ALL_MODES</option>
+                        <option value="Base">BASE_EXP</option>
+                        <option value="Job">JOB_EXP</option>
+                        <option value="Balanced">BALANCED</option>
+                    </select>
+                </div>
+                <span id="monster-count"></span>
+            </div>
+
+            <!-- Global Environment Context Message -->
+            <div class="system-note">
+                <span>[NOTE]</span> exp should differ depending on world level
+            </div>
+
+            <div id="output-view"></div>
+        </main>
+
+        <!-- RIGHT UTILITY PANEL (BOTTOM STACK ON MOBILE/TABLET) -->
+        <aside class="aside-panel">
+            <div class="meta-box">
+                <div class="meta-box-title">// ZONE_LOCATIONS</div>
+                <ul class="meta-list" id="right-locations-box">
+                    <li class="no-data" style="font-size:0.7rem;">Select active parameters...</li>
+                </ul>
+            </div>
+
+            <div class="meta-box">
+                <div class="meta-box-title">// METADATA_PROPERTIES</div>
+                <ul class="meta-list" id="right-meta-box">
+                    <li class="no-data" style="font-size:0.7rem;">Select active parameters...</li>
+                </ul>
+            </div>
+
+            <div class="ad-slot ad-sidebar-right">AD_SIDEBAR_R</div>
+        </aside>
+    </div>
+
+    <footer>
+        <div>&copy; 2026 Introboys Fan Database.</div>
+        <div>SECURE_NODE // CONNECTED</div>
+    </footer>
+
+<script src="./monsters.js"></script>
+
+<script>
+if (typeof masterMonsterData === 'undefined') {
+    alert("DATA LOAD ERROR: monsters.js not found!");
+} else {
+    document.getElementById('monster-count').innerText = `[ LOADED: ${masterMonsterData.length}_MONSTERS ]`;
+}
+
+function getLevelGapMultiplier(monsterLevel, charLevel) {
+    const gap = Math.abs(monsterLevel - charLevel);
+    if (gap <= 3) return 1.0;  // 100% [image_39b4c5.png]
+    if (gap <= 6) return 0.8;  // 80% [image_39b4c5.png]
+    return 0.1;                // 10% severe dropfall
+}
+
+function filterByLevel(monsters, myLevel, range = 15) {
+  return monsters.filter(m =>
+    typeof m.level === "number" && m.level >= myLevel - range && m.level <= myLevel + range
+  );
+}
+
+function sortByBaseExp(monsters, myLevel) {
+  return [...monsters].sort((a, b) => {
+    const aTrueBase = (a.exp?.solo?.withoutOdin?.base ?? 0) * getLevelGapMultiplier(a.level, myLevel);
+    const bTrueBase = (b.exp?.solo?.withoutOdin?.base ?? 0) * getLevelGapMultiplier(b.level, myLevel);
+    return bTrueBase - aTrueBase;
+  });
+}
+
+function sortByJobExp(monsters, myLevel) {
+  return [...monsters].sort((a, b) => {
+    const aTrueJob = (a.exp?.solo?.withoutOdin?.job ?? 0) * getLevelGapMultiplier(a.level, myLevel);
+    const bTrueJob = (b.exp?.solo?.withoutOdin?.job ?? 0) * getLevelGapMultiplier(b.level, myLevel);
+    return bTrueJob - aTrueJob;
+  });
+}
+
+function sortByBalancedExp(monsters, myLevel) {
+  return [...monsters].sort((a, b) => {
+    const aMult = getLevelGapMultiplier(a.level, myLevel);
+    const bMult = getLevelGapMultiplier(b.level, myLevel);
+    
+    const aBase = (a.exp?.solo?.withoutOdin?.base ?? 0) * aMult;
+    const aJob = (a.exp?.solo?.withoutOdin?.job ?? 0) * aMult;
+    const bBase = (b.exp?.solo?.withoutOdin?.base ?? 0) * bMult;
+    const bJob = (b.exp?.solo?.withoutOdin?.job ?? 0) * bMult;
+    
+    const aScore = (aBase + aJob) - Math.abs(aBase - aJob) * 0.5;
+    const bScore = (bBase + bJob) - Math.abs(bBase - bJob) * 0.5;
+    return bScore - aScore;
+  });
+}
+
+function generateHTMLTable(title, titleClass, list, myLevel, isBalanced = false) {
+    let html = `
+        <div class="table-container">
+            <h3 class="table-title ${titleClass}">// ${title}</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>NAME</th>
+                        <th style="width: 25px; text-align: center;">LV</th>
+                        <th style="width: 35px; text-align: center;">EFF</th>
+                        <th style="width: 50px; text-align: center;">SIZE</th>
+                        <th style="width: 55px; text-align: center;">ELEM</th>
+                        <th>BASE</th>
+                        <th>JOB</th>
+                        ${isBalanced ? '<th>TOTAL</th>' : ''}
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    if (list.length === 0) {
+        html += `<tr><td colspan="${isBalanced ? 8 : 7}" class="no-data">NO RECORDS MATCH FILTERS</td></tr>`;
+    } else {
+        list.forEach(m => {
+            const mult = getLevelGapMultiplier(m.level, myLevel);
+            const rawBase = m.exp?.solo?.withoutOdin?.base ?? 0;
+            const rawJob = m.exp?.solo?.withoutOdin?.job ?? 0;
+            
+            const calculatedBase = Math.floor(rawBase * mult);
+            const calculatedJob = Math.floor(rawJob * mult);
+
+            const avatarHTML = m.image 
+                ? `<img class="monster-avatar" src="${m.image}" alt="" loading="lazy">`
+                : `<div class="monster-avatar-fallback">N/A</div>`;
+
+            const sizeStr = m.type || 'Medium';
+            const sizeClass = `badge-${sizeStr.toLowerCase()}`;
+            
+            const elemStr = m.element || 'Neutral';
+            const elemClass = `badge-${elemStr.toLowerCase()}`;
+
+            const effText = `${Math.round(mult * 100)}%`;
+            const effClass = mult === 1.0 ? 'eff-100' : (mult === 0.8 ? 'eff-80' : 'eff-10');
+            const effSymbol = mult === 1.0 ? '▬' : '▼';
+
+            html += `
+                <tr>
+                    <td><div class="monster-cell">${avatarHTML}<strong>${m.name}</strong></div></td>
+                    <td style="text-align: center; color: var(--text-muted);">${m.level}</td>
+                    <td style="text-align: center; font-size: 0.7rem;" class="${effClass}">${effSymbol} ${effText}</td>
+                    <td style="text-align: center;"><span class="badge ${sizeClass}">${sizeStr.substring(0,3)}</span></td>
+                    <td style="text-align: center;"><span class="badge ${elemClass}">${elemStr}</span></td>
+                    <td style="color: var(--accent-orange); font-weight: 700;">${calculatedBase}</td>
+                    <td style="color: var(--accent-yellow); font-weight: 700;">${calculatedJob}</td>
+                    ${isBalanced ? `<td style="color: var(--accent-blue); font-weight: 800;">${calculatedBase + calculatedJob}</td>` : ''}
+                </tr>
+            `;
+        });
+    }
+    html += `</tbody></table></div>`;
+    return html;
+}
+
+function updateRightSidePanels(selection, myLevel) {
+    const locBox = document.getElementById("right-locations-box");
+    const metaBox = document.getElementById("right-meta-box");
+    
+    if(!selection || selection.length === 0) {
+        locBox.innerHTML = `<li class="no-data">NO RECS</li>`;
+        metaBox.innerHTML = `<li class="no-data">NO RECS</li>`;
+        return;
+    }
+
+    const topTargets = sortByBalancedExp(selection, myLevel).slice(0, 5);
+    
+    let locHTML = "";
+    let metaHTML = "";
+
+    topTargets.forEach(m => {
+        locHTML += `
+            <li class="meta-item">
+                <strong>${m.name}</strong>
+                <span class="val">${m.location || 'Unknown Zone'}</span>
+            </li>
+        `;
+        metaHTML += `
+            <li class="meta-item">
+                <strong>${m.name}</strong>
+                <span class="val">${m.element || 'None'} / ${m.race || 'None'}</span>
+            </li>
+        `;
+    });
+
+    locBox.innerHTML = locHTML;
+    metaBox.innerHTML = metaHTML;
+}
+
+function renderUI(monsters, myLevel, sizeFilter, elementFilter, raceFilter, expMode) {
+    if (typeof masterMonsterData === 'undefined') return;
+    
+    const outputContainer = document.getElementById("output-view");
+    outputContainer.innerHTML = ""; 
+
+    let finalSelection = filterByLevel(monsters, myLevel, 15);
+
+    if (sizeFilter !== "All") {
+        finalSelection = finalSelection.filter(m => m.type && m.type.toLowerCase() === sizeFilter.toLowerCase());
+    }
+
+    if (elementFilter !== "All") {
+        finalSelection = finalSelection.filter(m => m.element && m.element.toLowerCase() === elementFilter.toLowerCase());
+    }
+
+    if (raceFilter !== "All") {
+        finalSelection = finalSelection.filter(m => m.race && m.race.toLowerCase() === raceFilter.toLowerCase());
+    }
+
+    let displayTitle = `TARGET // RUNTIME_POOL <span>(${finalSelection.length} matches)</span>`;
+
+    updateRightSidePanels(finalSelection, myLevel);
+
+    const section = document.createElement("div");
+    section.className = "view-section";
+    let sectionHTML = `<h2 class="view-title">${displayTitle}</h2>`;
+    
+    if (finalSelection.length === 0) {
+        sectionHTML += `<p class="no-data">NO ENTRIES MATCH ALL CRITERIA FOR LEVEL ${myLevel}</p>`;
+        section.innerHTML = sectionHTML;
+        outputContainer.appendChild(section);
+        return;
+    }
+
+    const isSingleView = expMode !== "All";
+    sectionHTML += `<div class="tables-grid ${isSingleView ? 'single-view' : ''}">`;
+
+    if (expMode === "All" || expMode === "Base") {
+        const topBase = sortByBaseExp(finalSelection, myLevel).slice(0, 10);
+        sectionHTML += generateHTMLTable("TOP_10_BASE (PENALIZED)", "title-base", topBase, myLevel, false);
+    }
+    if (expMode === "All" || expMode === "Job") {
+        const topJob = sortByJobExp(finalSelection, myLevel).slice(0, 10);
+        sectionHTML += generateHTMLTable("TOP_10_JOB (PENALIZED)", "title-job", topJob, myLevel, false);
+    }
+    if (expMode === "All" || expMode === "Balanced") {
+        const topBalanced = sortByBalancedExp(finalSelection, myLevel).slice(0, 10);
+        sectionHTML += generateHTMLTable("TOP_10_BALANCED (PENALIZED)", "title-balanced", topBalanced, myLevel, true);
+    }
+
+    sectionHTML += `</div>`;
+    section.innerHTML = sectionHTML;
+    outputContainer.appendChild(section);
+}
+
+function loadSavedInputs() {
+    const savedLevel = localStorage.getItem("monster_calc_level");
+    const savedSize = localStorage.getItem("monster_calc_size");
+    const savedElement = localStorage.getItem("monster_calc_element");
+    const savedRace = localStorage.getItem("monster_calc_race");
+    const savedMode = localStorage.getItem("monster_calc_mode");
+
+    if (savedLevel !== null) document.getElementById("char-level").value = savedLevel;
+    if (savedSize !== null) document.getElementById("size-type").value = savedSize;
+    if (savedElement !== null) document.getElementById("element-type").value = savedElement;
+    if (savedRace !== null) document.getElementById("race-type").value = savedRace;
+    if (savedMode !== null) document.getElementById("exp-mode").value = savedMode;
+}
+
+function updateTables() {
+    const levelInput = document.getElementById("char-level").value;
+    const currentLevel = Number(levelInput) || 1;
+    const sizeSelect = document.getElementById("size-type").value;
+    const elementSelect = document.getElementById("element-type").value;
+    const raceSelect = document.getElementById("race-type").value;
+    const modeSelect = document.getElementById("exp-mode").value;
+    
+    localStorage.setItem("monster_calc_level", levelInput);
+    localStorage.setItem("monster_calc_size", sizeSelect);
+    localStorage.setItem("monster_calc_element", elementSelect);
+    localStorage.setItem("monster_calc_race", raceSelect);
+    localStorage.setItem("monster_calc_mode", modeSelect);
+    
+    renderUI(masterMonsterData, currentLevel, sizeSelect, elementSelect, raceSelect, modeSelect);
+}
+
+loadSavedInputs();
+updateTables();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "rox-spawn-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ragnarok Online spawn tracker with shared group sync",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "approve": "node scripts/approve-group.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Guides — Introboys Fan Database</title>
+    <meta name="description" content="Job EXP, base EXP, and card farming guides for Ragnarok Online.">
+    <script src="./js/theme.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .guides-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 24px;
+        }
+
+        .guides-wip-banner {
+            background: var(--bg-card);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+        }
+
+        .guides-wip-label {
+            margin: 0 0 8px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-orange);
+        }
+
+        .guides-wip-banner p {
+            margin: 0;
+            font-size: 0.78rem;
+            line-height: 1.55;
+            color: var(--text-muted);
+            max-width: 72ch;
+        }
+
+        .guides-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .guides-tab {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+        }
+
+        .guides-tab:hover {
+            color: var(--text-main);
+            border-color: var(--accent-blue);
+        }
+
+        .guides-tab.active {
+            color: var(--on-accent);
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .guides-panel {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .guides-panel.active {
+            display: flex;
+        }
+
+        .guides-section-desc {
+            margin: 0;
+            font-size: 0.75rem;
+            line-height: 1.55;
+            color: var(--text-muted);
+            max-width: 72ch;
+        }
+
+        .guides-section-desc a {
+            color: var(--accent-blue);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .guides-section-desc a:hover {
+            text-decoration: underline;
+        }
+
+        .guides-meta {
+            margin: 0;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            letter-spacing: 0.03em;
+        }
+
+        .guides-table-wrap {
+            overflow-x: auto;
+        }
+
+        .guides-table-wrap table {
+            width: 100%;
+            min-width: 720px;
+        }
+
+        .guides-table-wrap th {
+            white-space: nowrap;
+        }
+
+        .guides-level-cell {
+            text-align: center;
+            font-weight: 800;
+            color: var(--accent-blue);
+            white-space: nowrap;
+        }
+
+        .guides-mob-lv {
+            color: var(--text-muted);
+            font-size: 0.72em;
+            font-weight: 600;
+        }
+
+        .guides-monster-cell {
+            gap: 10px;
+        }
+
+        .guides-monster-avatar,
+        .guides-avatar-fallback {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-input);
+            flex-shrink: 0;
+        }
+
+        .guides-monster-avatar {
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .guides-card-avatar {
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-input);
+            object-fit: contain;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+        }
+
+        .guides-avatar-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .guides-exp-cell {
+            text-align: right;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .guides-exp-cell--job {
+            color: var(--accent-yellow);
+        }
+
+        .guides-exp-cell--base {
+            color: var(--accent-orange);
+        }
+
+        .guides-exp-cell--per-odin {
+            text-align: right;
+            font-weight: 800;
+            color: var(--accent-blue);
+            white-space: nowrap;
+        }
+
+        .guides-exp-cell--odin {
+            text-align: right;
+            font-weight: 600;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+
+        .guides-eff-cell {
+            text-align: center;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+
+        .guides-subsection-title {
+            margin: 18px 0 0;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            letter-spacing: 0.06em;
+        }
+
+        .guides-table-wrap + .guides-subsection-title {
+            margin-top: 24px;
+        }
+
+        .guides-drop-cell {
+            text-align: center;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            white-space: nowrap;
+        }
+
+        .guides-alt-cell {
+            font-size: 0.72rem;
+            line-height: 1.45;
+            color: var(--text-muted);
+        }
+
+        .guides-empty {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .guides-static-row {
+            background: rgba(56, 189, 248, 0.04);
+        }
+    </style>
+</head>
+<body>
+
+    <header id="global-header"></header>
+
+    <div class="app-layout app-layout--legal">
+        <nav id="global-nav"></nav>
+
+        <main class="guides-main">
+            <div class="guides-wip-banner">
+                <p class="guides-wip-label">Work in progress</p>
+                <p>
+                    Farming guides generated from the site monster database. Card drop rates are estimates — verify in-game before long farms.
+                </p>
+            </div>
+
+            <div class="guides-tabs" role="tablist" aria-label="Guide sections">
+                <button type="button" class="guides-tab active" data-tab="job" role="tab" aria-selected="true">Best Job EXP</button>
+                <button type="button" class="guides-tab" data-tab="base" role="tab" aria-selected="false">Best Base EXP</button>
+                <button type="button" class="guides-tab" data-tab="cards" role="tab" aria-selected="false">Best Cards</button>
+            </div>
+
+            <section class="guides-panel active" id="guides-panel-job" role="tabpanel">
+                <h2 class="view-title">// JOB_EXP_BEST_TARGETS <span>by character level</span></h2>
+                <p class="guides-section-desc">
+                    Levels <strong>20–29</strong>: Poison Spore. From level 30 up, consecutive levels with the same best target are grouped.
+                    Odin tables below rank by <strong>JOB/ODIN</strong> (job EXP per Odin point — small 1, medium 2, large 3).
+                </p>
+                <p class="guides-meta" id="job-exp-guide-meta">Loading…</p>
+                <div class="table-container guides-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>LV</th>
+                                <th>BEST TARGET</th>
+                                <th>LOCATION</th>
+                                <th style="text-align: right;">JOB</th>
+                                <th style="text-align: right;">O-JOB</th>
+                                <th style="text-align: right;">JOB/OD</th>
+                                <th style="text-align: center;">EFF</th>
+                                <th>RUNNERS-UP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="job-exp-guide-body">
+                            <tr><td colspan="8" class="no-data">Loading job EXP picks…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h3 class="guides-subsection-title">// WITH_ODIN · JOB/ODIN EFFICIENCY</h3>
+                <p class="guides-meta" id="job-exp-guide-odin-meta">Loading…</p>
+                <div class="table-container guides-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>LV</th>
+                                <th>BEST TARGET</th>
+                                <th>LOCATION</th>
+                                <th style="text-align: right;">JOB/OD</th>
+                                <th style="text-align: right;">O-JOB</th>
+                                <th style="text-align: right;">JOB</th>
+                                <th style="text-align: center;">EFF</th>
+                                <th>RUNNERS-UP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="job-exp-guide-odin-body">
+                            <tr><td colspan="8" class="no-data">Loading Odin job picks…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="guides-panel" id="guides-panel-base" role="tabpanel">
+                <h2 class="view-title">// BASE_EXP_BEST_TARGETS <span>by character level</span></h2>
+                <p class="guides-section-desc">
+                    Best base EXP targets from level 20 up, grouped when the same monster stays optimal across consecutive levels.
+                    Odin tables below rank by <strong>BASE/ODIN</strong> per point spent.
+                </p>
+                <p class="guides-meta" id="base-exp-guide-meta">Loading…</p>
+                <div class="table-container guides-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>LV</th>
+                                <th>BEST TARGET</th>
+                                <th>LOCATION</th>
+                                <th style="text-align: right;">BASE</th>
+                                <th style="text-align: right;">O-BASE</th>
+                                <th style="text-align: right;">BASE/OD</th>
+                                <th style="text-align: center;">EFF</th>
+                                <th>RUNNERS-UP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="base-exp-guide-body">
+                            <tr><td colspan="8" class="no-data">Loading base EXP picks…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h3 class="guides-subsection-title">// WITH_ODIN · BASE/ODIN EFFICIENCY</h3>
+                <p class="guides-meta" id="base-exp-guide-odin-meta">Loading…</p>
+                <div class="table-container guides-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>LV</th>
+                                <th>BEST TARGET</th>
+                                <th>LOCATION</th>
+                                <th style="text-align: right;">BASE/OD</th>
+                                <th style="text-align: right;">O-BASE</th>
+                                <th style="text-align: right;">BASE</th>
+                                <th style="text-align: center;">EFF</th>
+                                <th>RUNNERS-UP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="base-exp-guide-odin-body">
+                            <tr><td colspan="8" class="no-data">Loading Odin base picks…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="guides-panel" id="guides-panel-cards" role="tabpanel">
+                <h2 class="view-title">// CARD_FARMING <span>drop targets</span></h2>
+                <p class="guides-section-desc">
+                    Recommended character level to farm each card and estimated drop rate. More cards will be added over time.
+                </p>
+                <p class="guides-meta" id="cards-guide-meta">Loading…</p>
+                <div class="table-container guides-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CARD</th>
+                                <th>FARM MOB</th>
+                                <th>LOCATION</th>
+                                <th style="text-align: center;">FARM AT LV</th>
+                                <th style="text-align: center;">DROP RATE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cards-guide-body">
+                            <tr><td colspan="5" class="no-data">Loading card list…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <aside class="aside-panel" id="global-aside"></aside>
+    </div>
+
+    <footer id="global-footer"></footer>
+
+    <script src="./monsters.js"></script>
+    <script src="./js/exp-utils.js"></script>
+    <script src="./js/guides-cards-data.js"></script>
+    <script src="./js/app-guides.js"></script>
+    <script src="./js/layout-loader.js"></script>
+</body>
+</html>

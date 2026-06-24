@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Node Spawn Trackers Centre</title>
+    <script src="./js/theme.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .dashboard-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+        }
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-width: 0;
+        }
+        .toolbar-group--board {
+            flex: 0 1 auto;
+        }
+        .toolbar-group--join {
+            flex: 1 1 240px;
+            justify-content: flex-end;
+        }
+        .toolbar-tag {
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .toolbar-join-input {
+            flex: 1 1 90px;
+            min-width: 0;
+            max-width: 150px;
+            box-sizing: border-box;
+            padding: 5px 7px;
+            font-family: inherit;
+            font-size: 0.72rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-main);
+        }
+        .toolbar-join-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        .header-btn-group {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .secondary-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 6px 12px;
+        }
+        .secondary-btn:hover {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        /* DRAG AND DROP SORTABLE GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            align-items: start;
+            margin-top: 10px;
+        }
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 640px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* DRAGGABLE ITEM CONTAINERS */
+        .board-column {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-top: 3px solid var(--accent-blue);
+            display: flex;
+            flex-direction: column;
+            border-radius: 2px;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .board-column:active { cursor: grabbing; }
+        .board-column.dragging { opacity: 0.4; transform: scale(0.98); }
+        .board-column.drag-over { border-inline: 2px dashed var(--accent-blue); }
+        .board-column.col-alt { border-top-color: var(--accent-orange); }
+
+        .column-header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px 12px;
+            background: var(--surface-elevated);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .column-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .column-header-info {
+            min-width: 0;
+            flex: 1;
+        }
+        .column-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .column-header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
+        .column-header-actions-primary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            flex: 1;
+        }
+        .column-header-actions-secondary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .col-action-btn.col-delete {
+            color: var(--elem-fire);
+            flex-shrink: 0;
+            padding: 2px 8px;
+        }
+        .tracker-id-row .col-action-btn {
+            padding: 1px 5px;
+            font-size: 0.55rem;
+        }
+
+        .column-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* FINISHED TIMERS CONTAINER PANEL */
+        .finished-section-divider {
+            margin-top: 12px;
+            border-top: 2px double var(--border-color);
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .finished-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .finished-section-title {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--elem-fire);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .clear-finished-inline {
+            background: transparent;
+            border: 1px dashed var(--elem-fire);
+            color: var(--elem-fire);
+            font-size: 0.6rem;
+            font-family: inherit;
+            padding: 1px 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .clear-finished-inline:hover { background: var(--finished-hover-bg); }
+
+        /* MINI RECTANGLE TIMER ROW NODES */
+        .timer-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+        .timer-card.spawned {
+            background: var(--spawned-bg);
+            border-color: var(--spawned-border);
+        }
+        .timer-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .timer-card-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .timer-card-clock {
+            font-size: 0.85rem;
+            font-weight: 800;
+            font-family: monospace;
+        }
+
+        .timer-card-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .timer-action-btn {
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 700;
+            font-family: inherit;
+            background: transparent;
+            border: none;
+            padding: 0;
+            line-height: 1.2;
+        }
+        .timer-action-btn--edit { color: var(--text-muted); }
+        .timer-action-btn--edit:hover { color: var(--accent-blue); }
+        .timer-action-btn--reset { color: var(--accent-orange); font-weight: 800; }
+        .timer-action-btn--reset:hover { color: var(--btn-accent-hover); }
+        .timer-action-btn--delete {
+            color: var(--elem-fire);
+            font-size: 0.85rem;
+            padding: 0 2px;
+        }
+        .timer-action-btn--delete:hover { opacity: 0.8; }
+
+        /* ACCORDION TRAYS FOR EXTRA TIMERS */
+        .accordion-wrapper {
+            margin-top: 4px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 6px;
+        }
+        .accordion-trigger {
+            width: 100%;
+            background: var(--surface-accordion);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+        .accordion-trigger:hover {
+            color: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+        .accordion-content {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .accordion-content.open { display: flex; }
+
+        /* STACKING TOAST NOTIFICATION CONTAINER */
+        #toast-notification-stack {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 320px;
+            max-width: 90vw;
+            pointer-events: none;
+        }
+        .toast-message {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            color: var(--text-main);
+            padding: 12px;
+            font-size: 0.75rem;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            pointer-events: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            animation: slideInToast 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .toast-message.toast-alarm { border-left-color: var(--elem-fire); }
+        .toast-message.toast-warn { border-left-color: var(--accent-orange); }
+        .toast-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 0 0 8px;
+        }
+        .toast-close-btn:hover { color: var(--text-main); }
+        @keyframes slideInToast {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* AUTOCOMPLETE INPUT CONTAINMENT */
+        .autocomplete-container { position: relative; width: 100%; }
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            z-index: 1050;
+            max-height: 160px;
+            overflow-y: auto;
+            margin-top: 2px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+        .suggestion-item {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        .suggestion-item:hover, .suggestion-item.highlighted {
+            background: var(--accent-blue);
+            color: var(--on-accent);
+        }
+
+        /* MODAL INFRASTRUCTURE STYLING */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(3px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            width: 100%; max-width: 400px; padding: 20px;
+            box-shadow: 0 20px 25px -5px var(--shadow-color);
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+        .modal-close:hover { color: var(--elem-fire); }
+        .control-group { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
+        .modal-card input[type="text"], .modal-card select { width: 100%; box-sizing: border-box; padding: 6px 8px; }
+        .modal-card input[type="number"] { box-sizing: border-box; height: 28px; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 8px; width: 100%; }
+        .save-modal-btn { background: var(--accent-blue); color: var(--on-accent); border: none; font-family: inherit; font-weight: 900; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; padding: 10px; flex: 1; }
+        .save-modal-btn:hover { background: var(--btn-accent-hover); }
+        .save-modal-btn.secondary-modal-btn { background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+        .save-modal-btn.secondary-modal-btn:hover { background: var(--accent-blue); color: var(--on-accent); }
+        .modal-card > .save-modal-btn { width: 100%; margin-top: 8px; flex: none; }
+        .danger-btn { background: var(--danger-bg); border: 1px dashed var(--elem-undead); color: var(--elem-undead); font-family: inherit; font-weight: 700; text-transform: uppercase; padding: 8px; cursor: pointer; font-size: 0.75rem; width: 100%; }
+        .danger-btn:hover { background: var(--danger-hover-bg); }
+
+        .progress-track { background: var(--bg-input); border: 1px solid var(--border-color); width: 100%; height: 6px; box-sizing: border-box; }
+        .progress-bar { background: var(--accent-blue); height: 100%; width: 100%; transition: width 1s linear; }
+        .progress-bar.warning { background: var(--accent-orange); }
+        .progress-bar.critical { background: var(--elem-fire); }
+
+        .col-action-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .col-action-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        .col-action-btn.add-inline {
+            background: var(--accent-blue);
+            color: var(--on-accent);
+            border: none;
+            font-weight: 800;
+        }
+        .col-action-btn.add-inline:hover { background: var(--btn-accent-hover); }
+
+        .share-status-chip {
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border: 1px solid var(--border-color);
+            text-transform: uppercase;
+        }
+        .share-status-local { color: var(--text-muted); }
+        .share-status-allowlisted { color: var(--accent-yellow); border-color: var(--accent-yellow); }
+        .share-status-live { color: var(--accent-blue); border-color: var(--accent-blue); }
+        .share-status-offline { color: var(--elem-fire); border-color: var(--elem-fire); }
+        .tracker-id-row {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            line-height: 1.4;
+        }
+        .tracker-id-code {
+            font-family: monospace;
+            color: var(--accent-yellow);
+            font-weight: 700;
+        }
+        .timer-added-by {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .board-column.col-shared-guest { border-top-color: var(--accent-yellow); }
+        .board-column.col-disconnected { opacity: 0.75; }
+
+        @media (max-width: 1024px) {
+            .page-timers .aside-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-timers .aside-panel,
+            .page-timers footer {
+                display: none;
+            }
+
+            .page-timers .app-layout {
+                align-content: start;
+            }
+
+            .page-timers main {
+                padding: 4px 6px;
+                gap: 4px;
+            }
+
+            .page-timers .dashboard-grid {
+                margin-top: 4px;
+                gap: 6px;
+            }
+
+            .page-timers .dashboard-toolbar {
+                padding: 4px 5px;
+                gap: 4px;
+            }
+
+            .page-timers .toolbar-group {
+                gap: 4px;
+            }
+
+            .page-timers .toolbar-group--join {
+                flex: 1 1 100%;
+            }
+
+            .page-timers .toolbar-join-input {
+                flex: 1 1 60px;
+                max-width: none;
+                font-size: 0.68rem;
+                padding: 4px 6px;
+            }
+
+            .page-timers .toolbar-tag {
+                display: none;
+            }
+
+            .page-timers .toolbar-group .secondary-btn {
+                padding: 4px 6px;
+                font-size: 0.62rem;
+                white-space: nowrap;
+            }
+
+            .page-timers .column-header {
+                padding: 7px 8px;
+                gap: 5px;
+            }
+
+            .page-timers .column-body {
+                padding: 6px;
+                gap: 5px;
+            }
+
+            .page-timers .timer-card {
+                padding: 6px 8px;
+                gap: 4px;
+            }
+
+            .page-timers .finished-section-divider {
+                margin-top: 6px;
+                padding-top: 6px;
+            }
+
+            .page-timers nav {
+                padding: 4px 6px;
+                gap: 0;
+            }
+
+            .page-timers .nav-links {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                gap: 2px;
+            }
+
+            .page-timers .nav-links li {
+                flex-shrink: 0;
+            }
+
+            .page-timers .nav-section-title {
+                display: none;
+            }
+
+            .page-timers .nav-links a {
+                padding: 4px 7px;
+                font-size: 0.68rem;
+            }
+
+            .page-timers .nav-beta {
+                font-size: 0.55rem;
+            }
+
+            .page-timers header {
+                padding: 4px 8px;
+                min-height: 28px;
+            }
+
+            .page-timers .header-actions > div:last-child {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="page-timers">
+
+    <header id="global-header"></header>
+
+    <!-- FLOATING APPLICATION STACKED TOAST AREA -->
+    <div id="toast-notification-stack"></div>
+
+    <div class="app-layout">
+        <nav id="global-nav"></nav>
+
+        <main>
+            <div class="dashboard-toolbar">
+                <div class="toolbar-group toolbar-group--board">
+                    <span class="toolbar-tag">// CUSTOM_BOARD_GROUPS_DASHBOARD</span>
+                    <div class="header-btn-group">
+                        <button class="secondary-btn" onclick="openGroupModal('CREATE')">+ New Group</button>
+                        <button class="secondary-btn" onclick="openSettingsModal()">⚙ Settings</button>
+                    </div>
+                </div>
+                <div class="toolbar-group toolbar-group--join">
+                    <span class="toolbar-tag">// JOIN_SHARED_GROUP</span>
+                    <input type="text" class="toolbar-join-input" id="join-tracker-id" placeholder="TRK-XXXXXX" autocomplete="off" aria-label="Tracker ID">
+                    <input type="text" class="toolbar-join-input" id="share-nickname" placeholder="Nickname" autocomplete="off" maxlength="20" aria-label="Your nickname">
+                    <button class="secondary-btn" onclick="submitJoinGroup()">Join</button>
+                </div>
+            </div>
+
+            <!-- GRID SECTOR HOUSING DRAGGABLE GROUP COLUMNS -->
+            <div class="dashboard-grid" id="timers-dashboard-mount"></div>
+        </main>
+
+        <aside class="aside-panel" id="global-aside"></aside>
+    </div>
+
+    <footer id="global-footer"></footer>
+
+    <!-- INTERACTIVE MASTER CONTEXT TIMER MODAL -->
+    <div class="modal-overlay" id="timer-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <label id="modal-title-label" style="color: var(--accent-blue); font-weight: 800;">// INITIALIZE_NEW_TIMER</label>
+                <button class="modal-close" onclick="closeTimerModal()">&times;</button>
+            </div>
+            
+            <input type="hidden" id="modal-tracker-id" value="">
+            <input type="hidden" id="modal-assigned-column" value="">
+
+            <div class="control-group">
+                <label>Target Name</label>
+                <div class="autocomplete-container">
+                    <input type="text" id="target-name" placeholder="Baphomet / Ghostring / Stamina..." autocomplete="off" oninput="handleTargetNameInput(this.value)">
+                    <div class="autocomplete-suggestions" id="autocomplete-box" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Classification Tag</label>
+                <select id="target-type">
+                    <option value="NONE" selected>Unclassified // General</option>
+                    <option value="MVP">MVP</option>
+                    <option value="MINI">MINI</option>
+                    <option value="LIFE">LIFE (Life Skill)</option>
+                    <option value="EVENT">EVENT</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label id="countdown-label-text">Spawn Countdown (HH : MM : SS)</label>
+                <div style="display: flex; gap: 4px; width: 100%;">
+                    <input type="number" id="target-hrs" placeholder="0" min="0" max="99" style="width: 100%;">
+                    <span style="color: var(--text-muted); align-self: center;">:</span>
+                    <input type="number" id="target-mins" placeholder="0" min="0" max="59" style="width: 100%;">
+                    <span style="color: var(--text-muted); align-self: center;">:</span>
+                    <input type="number" id="target-secs" placeholder="0" min="0" max="59" style="width: 100%;">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="save-modal-btn secondary-modal-btn" id="modal-submit-add-btn" onclick="saveTimerForm(true)">Commit // Boot Next</button>
+                <button type="button" class="save-modal-btn" id="modal-submit-btn" onclick="saveTimerForm()">Execute Node Boot</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUMN VIEW FILTERS SETUP MODAL -->
+    <div class="modal-overlay" id="group-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <label id="group-modal-title" style="color: var(--accent-blue); font-weight: 800;">// CONFIGURE_BOARD_COLUMN</label>
+                <button class="modal-close" onclick="closeGroupModal()">&times;</button>
+            </div>
+            
+            <input type="hidden" id="modal-group-id" value="">
+
+            <div class="control-group">
+                <label>Group Column Title</label>
+                <input type="text" id="group-title" placeholder="UNNAMED GROUP" autocomplete="off">
+            </div>
+
+            <div class="control-group" id="group-tracker-id-row" style="display: none;">
+                <label>Tracker ID (send to admin to activate)</label>
+                <div style="display:flex; gap:8px; width:100%;">
+                    <input type="text" id="group-tracker-id-display" readonly style="flex:1; font-family:monospace; color:var(--accent-yellow);">
+                    <button type="button" class="secondary-btn" onclick="copyDisplayedTrackerId()">Copy</button>
+                </div>
+            </div>
+
+            <button class="save-modal-btn" id="group-modal-submit" onclick="saveGroupForm()">Deploy Custom Group</button>
+        </div>
+    </div>
+
+    <!-- HOST GUEST PERMISSIONS MODAL -->
+    <div class="modal-overlay" id="permissions-modal">
+        <div class="modal-card" style="max-width: 480px;">
+            <div class="modal-header">
+                <label style="color: var(--accent-blue); font-weight: 800;">// GUEST_ACCESS</label>
+                <button class="modal-close" onclick="closePermissionsModal()">&times;</button>
+            </div>
+            <input type="hidden" id="permissions-col-id" value="">
+            <p id="permissions-tracker-label" class="ui-text-sm" style="color:var(--text-muted); margin:0;"></p>
+
+            <div id="permissions-pending-section" style="display:none; margin-top:14px;">
+                <label class="ui-text-sm" style="font-weight:800; color:var(--accent-yellow); text-transform:uppercase;">Pending Join Requests</label>
+                <div id="permissions-pending-list" style="margin-top:8px; display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+
+            <div style="margin-top:14px;">
+                <label class="ui-text-sm" style="font-weight:800; color:var(--text-muted); text-transform:uppercase;">Active Guests</label>
+                <p class="ui-text-xs" style="color:var(--text-muted); margin:4px 0 0;">Changes save automatically when you toggle a checkbox.</p>
+                <div id="permissions-member-list" style="margin-top:8px; display:flex; flex-direction:column; gap:10px;"></div>
+                <p class="no-data ui-text-md" id="permissions-loading" style="display:none; padding:12px 0;">Checking server for connected guests…</p>
+                <p class="no-data ui-text-md" id="permissions-empty" style="padding:12px 0;">No guests have joined yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION GLOBAL SETTINGS MODAL -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <label style="color: var(--accent-orange); font-weight: 800;">// APPLICATION_SETTINGS</label>
+                <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+            </div>
+
+            <div class="control-group">
+                <label>Color Theme</label>
+                <select id="setting-theme" onchange="saveSettingsState()" style="width: 100%;">
+                    <option value="introboys">Introboys (default)</option>
+                    <option value="modern">Modern</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="hacker">Hacker (terminal)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Alarm Audio Profile Choice</label>
+                <div style="display: flex; gap: 8px; width: 100%;">
+                    <select id="setting-sound-profile" onchange="saveSettingsState()" style="flex: 1;">
+                        <option value="radar">Standard Radar Chime</option>
+                        <option value="digital">High-Frequency Digital Beep</option>
+                        <option value="pulse">Sub-Low Frequency Warning Pulse</option>
+                    </select>
+                    <button type="button" class="secondary-btn" style="padding: 0 12px; height: 28px;" onclick="previewAudioProfile()">Test Sound</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label id="volume-label-display">Audio Output Master Volume (80%)</label>
+                <div style="display:flex; width:100%; align-items:center; gap:8px;">
+                    <input type="range" id="setting-master-volume" min="0" max="100" value="80" style="flex:1; accent-color: var(--accent-orange);" oninput="updateVolumeLabelDisplay(this.value)" onchange="saveSettingsState()">
+                </div>
+            </div>
+
+            <div class="control-group" style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 4px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%;">
+                    <input type="checkbox" id="setting-desktop-notif" onchange="toggleDesktopNotificationPermission()" style="width: auto; cursor: pointer;">
+                    <span class="ui-text-md" style="font-weight: 700;">Enable Minimize/Desktop Notifications</span>
+                </label>
+                <p id="notif-status-text" class="ui-text-sm" style="margin: 4px 0 0 22px; color: var(--text-muted);">Status: Disabled</p>
+            </div>
+
+            <div style="border-top:1px solid var(--border-color); padding-top:12px; margin-top:4px;">
+                <label class="ui-text-sm" style="display:block; margin-bottom:6px;">System Purge Protocols</label>
+                <button class="danger-btn" onclick="purgeAllApplicationData()">⚠️ Reset Factory Baselines (Wipe All Data)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RoX world MVP/MINI roster (spawn tracker autocomplete) -->
+    <!-- Sources: gimbot.com MVP guide, roxpedia.com/mvpmini-database, in-game Boss Radar -->
+    <script>
+        window.monsterDatabase = [
+            // --- Core world MVPs (launch roster) ---
+            { name: "Mistress", type: "MVP" },
+            { name: "Phreeoni", type: "MVP" },
+            { name: "Kraken", type: "MVP" },
+            { name: "Eddga", type: "MVP" },
+            { name: "Maya", type: "MVP" },
+            { name: "Orc Hero", type: "MVP" },
+            { name: "Pharaoh", type: "MVP" },
+            { name: "Orc Lord", type: "MVP" },
+            { name: "Amon Ra", type: "MVP" },
+            { name: "Doppelganger", type: "MVP" },
+            // --- Instance / progression MVPs (commonly tracked) ---
+            { name: "Golden Thief Bug", type: "MVP" },
+            { name: "Drake", type: "MVP" },
+            { name: "Osiris", type: "MVP" },
+            { name: "Baphomet", type: "MVP" },
+            { name: "Dark Lord", type: "MVP" },
+            { name: "Dracula", type: "MVP" },
+            // --- Mid / endgame world MVPs ---
+            { name: "Time Holder", type: "MVP" },
+            { name: "Tao Gunka", type: "MVP" },
+            { name: "Morroc", type: "MVP" },
+            { name: "Lord of the Dead", type: "MVP" },
+            { name: "Fallen Bishop Hibram", type: "MVP" },
+            { name: "Lost Dragon", type: "MVP" },
+            // --- Level 140 world MVPs (ROXPEDIA) ---
+            { name: "RSX-0806", type: "MVP" },
+            { name: "Nidhoggr's Shadow", type: "MVP" },
+            { name: "Gloom Under Night", type: "MVP" },
+            { name: "Retribution", type: "MVP" },
+            { name: "Shadow Chaser Gertie", type: "MVP" },
+            { name: "Genetic Flamel", type: "MVP" },
+            // --- Core world MINIs (launch roster) ---
+            { name: "Dragon Fly", type: "MINI" },
+            { name: "Eclipse", type: "MINI" },
+            { name: "Mastering", type: "MINI" },
+            { name: "Ghostring", type: "MINI" },
+            { name: "King Dramoh", type: "MINI" },
+            { name: "Toad", type: "MINI" },
+            { name: "Deviling", type: "MINI" },
+            { name: "Angeling", type: "MINI" },
+            { name: "Dark Priest", type: "MINI" },
+            { name: "Vagabond Wolf", type: "MINI" },
+            // --- Level 140 world MINIs (ROXPEDIA) ---
+            { name: "Queen Scaraba", type: "MINI" },
+            { name: "Faceworm Queen", type: "MINI" },
+            { name: "Ktullanux", type: "MINI" },
+            { name: "Shelter", type: "MINI" },
+            { name: "Sorcerer Celia", type: "MINI" },
+            { name: "Ranger Cecil", type: "MINI" }
+        ];
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/socket-client.js"></script>
+    <script src="./js/app-timers.js"></script>
+    <script src="./js/layout-loader.js"></script>
+</body>
+</html>
