@@ -735,8 +735,8 @@ function clearAllTimersForColumn(columnId) {
     } else {
         localTrackers = localTrackers.filter(t => !(t.columnIds && t.columnIds.includes(columnId)));
     }
-    saveTrackersState();
-    renderTimersUI();
+        saveTrackersState();
+        renderTimersUI();
 }
 
 function purgeAllApplicationData() {
@@ -1075,13 +1075,13 @@ function renderTimersUI() {
         const canGuestCreate = isGuest && guestPermissions[col.trackerId]?.canCreate;
 
         if (!isGuest) {
-            colEl.setAttribute("draggable", "true");
-            colEl.addEventListener("dragstart", (e) => handleColumnDragStart(e, col.id));
-            colEl.addEventListener("dragend", handleColumnDragEnd);
-            colEl.addEventListener("dragover", handleColumnDragOver);
-            colEl.addEventListener("dragenter", handleColumnDragEnter);
-            colEl.addEventListener("dragleave", handleColumnDragLeave);
-            colEl.addEventListener("drop", (e) => handleColumnDrop(e, col.id));
+        colEl.setAttribute("draggable", "true");
+        colEl.addEventListener("dragstart", (e) => handleColumnDragStart(e, col.id));
+        colEl.addEventListener("dragend", handleColumnDragEnd);
+        colEl.addEventListener("dragover", handleColumnDragOver);
+        colEl.addEventListener("dragenter", handleColumnDragEnter);
+        colEl.addEventListener("dragleave", handleColumnDragLeave);
+        colEl.addEventListener("drop", (e) => handleColumnDrop(e, col.id));
         }
 
         const allMatched = getTimersForColumn(col);
@@ -1128,7 +1128,7 @@ function renderTimersUI() {
                     <div class="column-header-info">
                         <span class="column-title">${getDisplayTitle(col)} (${allMatched.length})</span>
                         ${trackerIdRow}
-                    </div>
+                </div>
                     <button class="col-action-btn col-delete" onclick="deleteColumnView('${col.id}')" title="Remove group">&times;</button>
                 </div>${actionsBlock}
             </div>
@@ -1435,7 +1435,7 @@ function initShareSocketLayer() {
                     disconnected: false
                 };
                 dashboardColumns.push(col);
-            } else {
+    } else {
                 col.title = (payload.title || col.title).toUpperCase();
                 col.disconnected = false;
             }

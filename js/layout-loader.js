@@ -49,7 +49,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // START THE BACKGROUND RADAR MONITORING ENGINE
     initGlobalBackgroundMonitor();
     initMobileTabBar();
+    initAnalyticsLoader();
 });
+
+function initAnalyticsLoader() {
+    const base = getComponentBase();
+    if (document.querySelector('script[data-rox-analytics-loader]')) return;
+    const script = document.createElement('script');
+    script.src = `${base}js/analytics.js`;
+    script.defer = true;
+    script.dataset.roxAnalyticsLoader = '1';
+    document.head.appendChild(script);
+}
 
 const MOBILE_TAB_BAR_HTML = `
 <a href="exp.html" id="tab-exp" class="mobile-tab-btn">

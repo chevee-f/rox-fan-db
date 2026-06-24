@@ -45,9 +45,21 @@ In **Variables**, add:
 |----------|--------|-----|
 | `AUTO_APPROVE_GROUPS` | `true` | Any new tracker ID works without manual approval (testing only) |
 | `ADMIN_SECRET` | long random string | Passphrase for `/ops-console.html` and admin API |
+| `PLAUSIBLE_DOMAIN` | your site hostname | Enables Plausible analytics (see below) |
 | `PORT` | (Railway sets this automatically) | |
 
 Turn `AUTO_APPROVE_GROUPS` off before a public launch. Approve groups at **`/ops-console.html`** (sign in with `ADMIN_SECRET`).
+
+### Optional: visitor analytics (Plausible)
+
+1. Sign up at [plausible.io](https://plausible.io) (free trial; paid after).
+2. Add your site domain (Railway URL or custom domain when ready).
+3. Railway → **Variables** → `PLAUSIBLE_DOMAIN` = exact hostname visitors use, e.g. `rox-fan-db.up.railway.app`
+4. Redeploy. No script changes needed — analytics loads automatically in production only when the var is set.
+
+**Umami alternative:** set `UMAMI_WEBSITE_ID` and optionally `UMAMI_SCRIPT_URL` instead of Plausible (only one provider is used; Plausible wins if both are set).
+
+Admin page (`/ops-console.html`) is excluded from analytics.
 
 ### 5. Get your URL
 
