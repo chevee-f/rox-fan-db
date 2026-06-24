@@ -68,21 +68,27 @@ app.get('/api/admin/status', (_req, res) => {
 });
 
 app.get('/api/public-config', (_req, res) => {
-    const plausibleDomain = process.env.PLAUSIBLE_DOMAIN?.trim();
     const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID?.trim();
+    const cloudflareToken = process.env.CLOUDFLARE_ANALYTICS_TOKEN?.trim();
+    const plausibleDomain = process.env.PLAUSIBLE_DOMAIN?.trim();
 
     let analytics = null;
-    if (plausibleDomain) {
-        analytics = {
-            provider: 'plausible',
-            domain: plausibleDomain,
-            scriptUrl: process.env.PLAUSIBLE_SCRIPT_URL?.trim() || 'https://plausible.io/js/script.js'
-        };
-    } else if (umamiWebsiteId) {
+    if (umamiWebsiteId) {
         analytics = {
             provider: 'umami',
             websiteId: umamiWebsiteId,
             scriptUrl: process.env.UMAMI_SCRIPT_URL?.trim() || 'https://cloud.umami.is/script.js'
+        };
+    } else if (cloudflareToken) {
+        analytics = {
+            provider: 'cloudflare',
+            token: cloudflareToken
+        };
+    } else if (plausibleDomain) {
+        analytics = {
+            provider: 'plausible',
+            domain: plausibleDomain,
+            scriptUrl: process.env.PLAUSIBLE_SCRIPT_URL?.trim() || 'https://plausible.io/js/script.js'
         };
     }
 

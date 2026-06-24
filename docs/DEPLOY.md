@@ -45,21 +45,44 @@ In **Variables**, add:
 |----------|--------|-----|
 | `AUTO_APPROVE_GROUPS` | `true` | Any new tracker ID works without manual approval (testing only) |
 | `ADMIN_SECRET` | long random string | Passphrase for `/ops-console.html` and admin API |
-| `PLAUSIBLE_DOMAIN` | your site hostname | Enables Plausible analytics (see below) |
+| `UMAMI_WEBSITE_ID` | UUID from Umami | **Free** analytics (recommended — see below) |
 | `PORT` | (Railway sets this automatically) | |
 
 Turn `AUTO_APPROVE_GROUPS` off before a public launch. Approve groups at **`/ops-console.html`** (sign in with `ADMIN_SECRET`).
 
-### Optional: visitor analytics (Plausible)
+### Optional: visitor analytics (free options)
 
-1. Sign up at [plausible.io](https://plausible.io) (free trial; paid after).
-2. Add your site domain (Railway URL or custom domain when ready).
-3. Railway → **Variables** → `PLAUSIBLE_DOMAIN` = exact hostname visitors use, e.g. `rox-fan-db.up.railway.app`
-4. Redeploy. No script changes needed — analytics loads automatically in production only when the var is set.
+Plausible is **paid after a trial** — use one of these instead. Only **one** provider runs; priority: Umami → Cloudflare → Plausible.
 
-**Umami alternative:** set `UMAMI_WEBSITE_ID` and optionally `UMAMI_SCRIPT_URL` instead of Plausible (only one provider is used; Plausible wins if both are set).
+#### Option A — Umami Cloud (recommended, free Hobby plan)
 
-Admin page (`/ops-console.html`) is excluded from analytics.
+1. Sign up at [cloud.umami.is](https://cloud.umami.is) (free tier: ~100K events/month, 3 sites).
+2. **Add website** → copy the **Website ID** (UUID).
+3. Railway → **Variables**:
+   ```
+   UMAMI_WEBSITE_ID=your-uuid-here
+   ```
+4. Redeploy. Dashboard updates within a few minutes.
+
+#### Option B — Cloudflare Web Analytics (free forever)
+
+1. Free [Cloudflare](https://dash.cloudflare.com) account → **Analytics & Logs** → **Web Analytics**.
+2. **Add a site** → choose **JS snippet** → copy the **token** from the beacon code.
+3. Railway → **Variables**:
+   ```
+   CLOUDFLARE_ANALYTICS_TOKEN=your-token-here
+   ```
+4. Redeploy. View stats in the Cloudflare dashboard (no Umami account needed).
+
+#### Option C — Plausible (paid after trial)
+
+Only if you prefer Plausible later:
+
+```
+PLAUSIBLE_DOMAIN=rox-fan-db.up.railway.app
+```
+
+Admin page (`/ops-console.html`) is excluded from all analytics.
 
 ### 5. Get your URL
 
