@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ops Console</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script src="./js/theme.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .ops-layout {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px 48px;
+        }
+
+        .ops-card {
+            width: 100%;
+            max-width: 920px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 22px 20px;
+        }
+
+        .ops-panel {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ops-panel.active {
+            display: flex;
+        }
+
+        .ops-kicker {
+            margin: 0;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-orange);
+        }
+
+        .ops-title {
+            margin: 4px 0 0;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-main);
+        }
+
+        .ops-subtitle {
+            margin: 6px 0 0;
+            font-size: 0.78rem;
+            line-height: 1.55;
+            color: var(--text-muted);
+        }
+
+        .ops-banner {
+            margin: 0;
+            padding: 10px 12px;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            background: rgba(56, 189, 248, 0.04);
+        }
+
+        .ops-banner-warn {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+            background: rgba(251, 146, 60, 0.06);
+        }
+
+        .ops-banner-info {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .ops-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ops-form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ops-form-row .control-group {
+            flex: 1 1 180px;
+            margin: 0;
+        }
+
+        .ops-form input {
+            width: 100%;
+        }
+
+        .ops-btn {
+            background: var(--accent-blue);
+            color: var(--on-accent);
+            border: none;
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 10px 14px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+        }
+
+        .ops-btn:hover {
+            background: var(--btn-accent-hover);
+        }
+
+        .ops-btn-secondary {
+            background: transparent;
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .ops-btn-secondary:hover {
+            background: var(--accent-blue);
+            color: var(--on-accent);
+        }
+
+        .ops-btn-danger {
+            background: transparent;
+            color: var(--elem-undead);
+            border: 1px solid var(--elem-undead);
+            padding: 6px 10px;
+            font-size: 0.65rem;
+        }
+
+        .ops-btn-danger:hover {
+            background: var(--danger-hover-bg);
+        }
+
+        .ops-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .ops-meta {
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            letter-spacing: 0.04em;
+        }
+
+        .ops-table-wrap {
+            overflow-x: auto;
+        }
+
+        .ops-table-wrap table {
+            width: 100%;
+            min-width: 680px;
+        }
+
+        .ops-tracker-id {
+            font-weight: 800;
+            color: var(--accent-yellow);
+        }
+
+        .ops-status-chip {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+        }
+
+        .ops-status-live {
+            color: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+
+        .ops-status-idle {
+            color: var(--text-muted);
+        }
+
+        .ops-notes-cell,
+        .ops-date-cell {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .ops-message {
+            margin: 0;
+            font-size: 0.75rem;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+        }
+
+        .ops-message-error {
+            color: var(--elem-undead);
+            border: 1px solid var(--elem-undead);
+            background: var(--danger-hover-bg);
+        }
+
+        .ops-message-ok {
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .ops-empty {
+            margin: 0;
+            padding: 16px;
+            text-align: center;
+            color: var(--text-dim);
+            font-style: italic;
+            font-size: 0.78rem;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="ops-layout">
+        <div class="ops-card">
+            <p class="ops-kicker">// RESTRICTED</p>
+            <h1 class="ops-title">Ops Console</h1>
+            <p class="ops-subtitle">Allowlist control for shared spawn tracker groups. Not linked from the public site.</p>
+            <p class="ops-banner" id="ops-server-status">Checking server…</p>
+
+            <section class="ops-panel active" id="ops-login-panel">
+                <form class="ops-form" id="ops-login-form" autocomplete="off">
+                    <div class="control-group">
+                        <label for="ops-passphrase">Admin passphrase</label>
+                        <input type="password" id="ops-passphrase" placeholder="Same value as ADMIN_SECRET on server" required>
+                    </div>
+                    <button type="submit" class="ops-btn">Authenticate</button>
+                </form>
+                <p class="ops-message" id="ops-login-message" hidden></p>
+            </section>
+
+            <section class="ops-panel" id="ops-console-panel">
+                <form class="ops-form" id="ops-approve-form">
+                    <p class="ops-kicker" style="margin-top: 4px;">// APPROVE_TRACKER</p>
+                    <div class="ops-form-row">
+                        <div class="control-group">
+                            <label for="ops-approve-id">Tracker ID</label>
+                            <input type="text" id="ops-approve-id" placeholder="TRK-A7F3K9Q" pattern="TRK-[A-Z0-9]+" required>
+                        </div>
+                        <div class="control-group">
+                            <label for="ops-approve-notes">Notes (optional)</label>
+                            <input type="text" id="ops-approve-notes" placeholder="Guild board — PlayerX">
+                        </div>
+                    </div>
+                    <button type="submit" class="ops-btn">Approve Group</button>
+                </form>
+
+                <p class="ops-message" id="ops-console-message" hidden></p>
+
+                <div class="ops-toolbar">
+                    <p class="ops-kicker">// ALLOWLIST</p>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span class="ops-meta" id="ops-group-count">0 groups</span>
+                        <button type="button" class="ops-btn ops-btn-secondary" id="ops-refresh-btn">Refresh</button>
+                        <button type="button" class="ops-btn ops-btn-secondary" id="ops-logout-btn">Sign Out</button>
+                    </div>
+                </div>
+
+                <div class="ops-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>TRACKER ID</th>
+                                <th>STATUS</th>
+                                <th>TITLE</th>
+                                <th>HOST</th>
+                                <th>NOTES</th>
+                                <th>APPROVED</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ops-groups-body"></tbody>
+                    </table>
+                    <p class="ops-empty" id="ops-groups-empty">No approved groups yet.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="./js/app-admin.js"></script>
+</body>
+</html>

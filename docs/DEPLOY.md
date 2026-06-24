@@ -43,10 +43,11 @@ In **Variables**, add:
 
 | Variable | Value | Why |
 |----------|--------|-----|
-| `AUTO_APPROVE_GROUPS` | `true` | Any new tracker ID works without manual SQL (fine for testing with friends) |
+| `AUTO_APPROVE_GROUPS` | `true` | Any new tracker ID works without manual approval (testing only) |
+| `ADMIN_SECRET` | long random string | Passphrase for `/ops-console.html` and admin API |
 | `PORT` | (Railway sets this automatically) | |
 
-Turn `AUTO_APPROVE_GROUPS` off before a public launch.
+Turn `AUTO_APPROVE_GROUPS` off before a public launch. Approve groups at **`/ops-console.html`** (sign in with `ADMIN_SECRET`).
 
 ### 5. Get your URL
 
@@ -67,44 +68,15 @@ Share with friends:
 
 ## Manual allowlist (production)
 
-If `AUTO_APPROVE_GROUPS` is not set, approve IDs **on the live server** (not your PC).
+Use the **Ops Console** — not linked from the public site:
 
-### Railway — approve the **live** database
-
-`railway shell` and `railway run` both run on **your PC** (you'll see `D:\Projects\RoX\data\trackers.db`). They do **not** update production.
-
-**Easiest for testing:** set `AUTO_APPROVE_GROUPS=true` in Railway Variables and redeploy.
-
-**Manual approve (recommended):** set an admin secret and call the API from your PC:
-
-1. Railway → Variables:
-   - `ADMIN_SECRET` = a long random string you keep private
-   - `AUTO_APPROVE_GROUPS` = `false` (or leave unset)
-2. Redeploy
-3. From your PC:
-
-```powershell
-$env:ROX_ADMIN_URL="https://YOUR-APP.up.railway.app"
-$env:ADMIN_SECRET="your-secret-here"
-npm run approve -- TRK-6JSB78 "Guild Timers"
-npm run list-groups
+```
+https://YOUR-APP.up.railway.app/ops-console.html
 ```
 
-**SSH into the container** (alternative):
+Sign in with the same value as `ADMIN_SECRET`. Approve tracker IDs, view LIVE/idle status, and revoke access.
 
-```powershell
-railway ssh
-npm run approve -- TRK-6JSB78 "Guild board"
-```
-
-First `railway ssh` may prompt you to register an SSH key.
-
-### Local dev
-
-```bash
-npm run approve -- TRK-A7F3K9Q "Guild board"
-npm run list-groups
-```
+CLI alternative (`ROX_ADMIN_URL` + `ADMIN_SECRET` on your PC): see [ADMIN.md](./ADMIN.md).
 
 ---
 

@@ -29,6 +29,10 @@ function approveGroup(trackerId, notes = '') {
     `).run(trackerId, notes || '');
 }
 
+function revokeGroup(trackerId) {
+    return getDb().prepare('DELETE FROM approved_groups WHERE tracker_id = ?').run(trackerId).changes > 0;
+}
+
 function isAllowlisted(trackerId) {
     return Boolean(getApprovedGroup(trackerId));
 }
@@ -325,6 +329,7 @@ module.exports = {
     nicknameKey,
     getApprovedGroup,
     approveGroup,
+    revokeGroup,
     isAllowlisted,
     getTimersForGroup,
     getMembersForGroup,

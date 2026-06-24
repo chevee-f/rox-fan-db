@@ -43,8 +43,28 @@ app.post('/api/admin/approve', requireAdmin, (req, res) => {
     if (!/^TRK-[A-Z0-9]+$/i.test(trackerId)) {
         return res.status(400).json({ ok: false, error: 'Invalid tracker ID' });
     }
-    groups.approveGroup(trackerId, req.body?.notes || 'admin api');
+    groups.approveGroup(trackerId, req.body?.notes || 'admin console');
     res.json({ ok: true, trackerId });
+});
+
+app.delete('/api/admin/groups/:trackerId', requireAdmin, (req, res) => {
+    const trackerId = String(req.params.trackerId || '').trim().toUpperCase();
+    if (!/^TRK-[A-Z0-9]+$/i.test(trackerId)) {
+        return res.status(400).json({ ok: false, error: 'Invalid tracker ID' });
+    }
+    const removed = groups.revokeGroup(trackerId);
+    if (!removed) {
+        return res.status(404).json({ ok: false, error: 'Tracker ID not found' });
+    }
+    res.json({ ok: true, trackerId });
+});
+
+app.get('/api/admin/status', (_req, res) => {
+    res.json({
+        ok: true,
+        configured: Boolean(process.env.ADMIN_SECRET),
+        autoApprove: AUTO_APPROVE_GROUPS
+    });
 });
 
 app.get('/health', (_req, res) => {
